@@ -55,6 +55,26 @@ function errorMsg(msg, error) {
   }
 }
 
+function getCameras(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+  console.log("enumerateDevices() not supported.");
+  return;
+  }
+
+// List cameras and microphones.
+
+  navigator.mediaDevices.enumerateDevices()
+  .then(function(devices) {
+    devices.forEach(function(device) {
+      console.log(device.kind + ": " + device.label +
+                  " id = " + device.deviceId);
+    });
+  })
+  .catch(function(err) {
+    console.log(err.name + ": " + err.message);
+  });
+}
+
 async function init(e) {
   try {
     console.log('Version 1');
@@ -67,3 +87,5 @@ async function init(e) {
 }
 
 document.querySelector('#showVideo').addEventListener('click', e => init(e));
+document.querySelector('#showDevices').addEventListener('click', getCameras());
+
