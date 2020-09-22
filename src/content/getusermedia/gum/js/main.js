@@ -10,10 +10,17 @@
 // Put variables in global scope to make them available to the browser console.
 const constraints = window.constraints = {
   audio: false,
-  video: true,
-  width: {max: 1920, ideal: 1920},
-  height: {max: 1080,ideal: 1080},
-  aspectRatio: 16/9
+  video: {
+    width: {
+      max: 1920, 
+      ideal: 1920
+    }, 
+    height: {
+      max: 1080,
+      ideal: 1080
+    }, 
+    aspectRatio: 16/9
+  }
 };
 
 function handleSuccess(stream) {
