@@ -7,22 +7,93 @@
  */
 'use strict';
 
-// Put variables in global scope to make them available to the browser console.
-const constraints = window.constraints = {
-  audio: true,
-  video: {
-    width: {
-      max: 1920, 
-      ideal: 1920
-    }, 
-    height: {
-      max: 1080,
-      ideal: 1080
-    }, 
-    aspectRatio: 16/9,
-    resizeMode: 'crop-and-scale'
+const videoElement = document.querySelector('video');
+const videoSelect = document.querySelector('select#videoSource');
+const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+
+function gotDevices(deviceInfos) {
+  // Handles being called several times to update labels. Preserve values.
+  const values = selectors.map(select => select.value);
+  selectors.forEach(select => {
+    while (select.firstChild) {
+      select.removeChild(select.firstChild);
+    }
+  });
+  for (let i = 0; i !== deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    const option = document.createElement('option');
+    option.value = deviceInfo.deviceId;
+    if (deviceInfo.kind === 'videoinput') {
+      option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+      videoSelect.appendChild(option);
+    } else {
+      console.log('Some other kind of source/device: ', deviceInfo);
+    }
   }
-};
+  selectors.forEach((select, selectorIndex) => {
+    if (Array.prototype.slice.call(select.childNodes).some(n => n.value === values[selectorIndex])) {
+      select.value = values[selectorIndex];
+    }
+  });
+}
+
+navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+
+// Attach audio output device to video element using device/sink ID.
+function attachSinkId(element, sinkId) {
+  if (typeof element.sinkId !== 'undefined') {
+    element.setSinkId(sinkId)
+        .then(() => {
+          console.log(`Success, audio output device attached: ${sinkId}`);
+        })
+        .catch(error => {
+          let errorMessage = error;
+          if (error.name === 'SecurityError') {
+            errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+          }
+          console.error(errorMessage);
+          // Jump back to first output device in the list as it's the default.
+          audioOutputSelect.selectedIndex = 0;
+        });
+  } else {
+    console.warn('Browser does not support output device selection.');
+  }
+}
+
+function changeAudioDestination() {
+  const audioDestination = audioOutputSelect.value;
+  attachSinkId(videoElement, audioDestination);
+}
+
+
+
+function start() {
+  if (window.stream) {
+    window.stream.getTracks().forEach(track => {
+      track.stop();
+    });
+  }
+  const videoSource = videoSelect.value;
+  const constraints = window.constraints = {
+    audio: true,
+    video: {
+      width: {
+        max: 1920, 
+        ideal: 1920
+      }, 
+      height: {
+        max: 1080,
+        ideal: 1080
+      }, 
+      aspectRatio: 16/9,
+      resizeMode: 'crop-and-scale',
+      deviceId: {
+        exact: <videoSource>
+      }
+    }
+  };
+ }
+
 
 function handleSuccess(stream) {
   const video = document.querySelector('video');
@@ -55,31 +126,11 @@ function errorMsg(msg, error) {
   }
 }
 
-function getCameras(){
-  console.log('Show list of cameras - Version 1');
-  if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-  console.log("enumerateDevices() not supported.");
-  return;
-  }
-
-// List cameras and microphones.
-
-  navigator.mediaDevices.enumerateDevices()
-  .then(function(devices) {
-    devices.forEach(function(device) {
-      console.log(device.kind + ": " + device.label +
-                  " id = " + device.deviceId);
-    });
-  })
-  .catch(function(err) {
-    console.log(err.name + ": " + err.message);
-  });
-}
 
 async function init(e) {
   try {
     console.log('Open Camera - Version 1');
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    const stream = await navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
     handleSuccess(stream);
     e.target.disabled = true;
   } catch (e) {
@@ -87,6 +138,11 @@ async function init(e) {
   }
 }
 
+audioInputSelect.onchange = start;
+videoSelect.onchange = start;
+
+start();
+  
 document.querySelector('#showVideo').addEventListener('click', e => init(e));
 //document.querySelector('#showDevices').addEventListener('click', getCameras());
 
