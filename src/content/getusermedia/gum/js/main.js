@@ -88,5 +88,5 @@ async function init(e) {
 }
 
 document.querySelector('#showVideo').addEventListener('click', e => init(e));
-document.querySelector('#showDevices').addEventListener('click', getCameras());
+//document.querySelector('#showDevices').addEventListener('click', getCameras());
 
