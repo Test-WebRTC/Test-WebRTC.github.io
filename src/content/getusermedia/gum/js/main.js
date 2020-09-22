@@ -20,7 +20,7 @@ const constraints = window.constraints = {
       ideal: 1080
     }, 
     aspectRatio: 16/9,
-    resizeMode: 'crop-and-scale'
+    resizeMode: 'crop-and-scale',
   }
 };
 
@@ -29,6 +29,7 @@ function handleSuccess(stream) {
   const videoTracks = stream.getVideoTracks();
   console.log('Got stream with constraints:', constraints);
   console.log(`Using video device: ${videoTracks[0].label}`);
+  console.log(navigator.mediaDevices.getSupportedConstraints());
   window.stream = stream; // make variable available to browser console
   video.srcObject = stream;
 }
