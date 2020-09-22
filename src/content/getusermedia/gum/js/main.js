@@ -56,6 +56,7 @@ function errorMsg(msg, error) {
 }
 
 function getCameras(){
+  console.log('Show list of cameras - Version 1');
   if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
   console.log("enumerateDevices() not supported.");
   return;
@@ -77,7 +78,7 @@ function getCameras(){
 
 async function init(e) {
   try {
-    console.log('Version 1');
+    console.log('Open Camera - Version 1');
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     handleSuccess(stream);
     e.target.disabled = true;
