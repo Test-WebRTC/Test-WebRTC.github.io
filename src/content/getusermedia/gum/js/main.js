@@ -9,7 +9,7 @@
 
 const videoElement = document.querySelector('video');
 const videoSelect = document.querySelector('select#videoSource');
-const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+const selectors = [videoSelect];
 
 function gotDevices(deviceInfos) {
   // Handles being called several times to update labels. Preserve values.
@@ -53,18 +53,11 @@ function attachSinkId(element, sinkId) {
           }
           console.error(errorMessage);
           // Jump back to first output device in the list as it's the default.
-          audioOutputSelect.selectedIndex = 0;
         });
   } else {
     console.warn('Browser does not support output device selection.');
   }
 }
-
-function changeAudioDestination() {
-  const audioDestination = audioOutputSelect.value;
-  attachSinkId(videoElement, audioDestination);
-}
-
 
 
 function start() {
@@ -138,9 +131,7 @@ async function init(e) {
   }
 }
 
-audioInputSelect.onchange = start;
 videoSelect.onchange = start;
-
 start();
   
 document.querySelector('#showVideo').addEventListener('click', e => init(e));
