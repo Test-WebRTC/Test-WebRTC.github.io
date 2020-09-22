@@ -29,12 +29,13 @@ function handleSuccess(stream) {
   const videoTracks = stream.getVideoTracks();
   console.log('Got stream with constraints:', constraints);
   console.log(`Using video device: ${videoTracks[0].label}`);
-  console.log(navigator.mediaDevices.getSupportedConstraints());
+  console.log('Available constraints with device:', navigator.mediaDevices.getSupportedConstraints());
   window.stream = stream; // make variable available to browser console
   video.srcObject = stream;
 }
 
 function handleError(error) {
+  console.log('Available constraints with device:', navigator.mediaDevices.getSupportedConstraints());
   if (error.name === 'ConstraintNotSatisfiedError') {
     const v = constraints.video;
     errorMsg(`The resolution ${v.width.exact}x${v.height.exact} px is not supported by your device.`);
