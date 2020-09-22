@@ -68,7 +68,7 @@ function start() {
   }
   const videoSource = videoSelect.value;
   const constraints = window.constraints = {
-    audio: true,
+    audio: false,
     video: {
       width: {
         max: 1920, 
