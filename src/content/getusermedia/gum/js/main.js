@@ -19,7 +19,8 @@ const constraints = window.constraints = {
       max: 1080,
       ideal: 1080
     }, 
-    aspectRatio: 16/9
+    aspectRatio: 16/9,
+    resizeMode = 'crop-and-scale'
   }
 };
 
