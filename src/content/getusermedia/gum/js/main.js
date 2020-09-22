@@ -13,7 +13,6 @@ const constraints = window.constraints = {
   video: true,
   width: {max: 1920, ideal: 1920},
   height: {max: 1080,ideal: 1080},
-  resizeMode: 'crop-and-scale’,
   aspectRatio: 16/9
 };
 
