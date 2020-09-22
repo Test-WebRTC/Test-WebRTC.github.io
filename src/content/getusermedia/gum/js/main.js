@@ -20,7 +20,7 @@ const constraints = window.constraints = {
       ideal: 1080
     }, 
     aspectRatio: 16/9,
-    resizeMode = 'crop-and-scale'
+    resizeMode: 'crop-and-scale'
   }
 };
 
