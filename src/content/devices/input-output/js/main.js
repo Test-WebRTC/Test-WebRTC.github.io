@@ -9,12 +9,9 @@
 'use strict';
 
 const videoElement = document.querySelector('video');
-const audioInputSelect = document.querySelector('select#audioSource');
-const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoSelect = document.querySelector('select#videoSource');
-const selectors = [audioInputSelect, audioOutputSelect, videoSelect];
+const selectors = [videoSelect];
 
-audioOutputSelect.disabled = !('sinkId' in HTMLMediaElement.prototype);
 
 function gotDevices(deviceInfos) {
   // Handles being called several times to update labels. Preserve values.
@@ -28,17 +25,14 @@ function gotDevices(deviceInfos) {
     const deviceInfo = deviceInfos[i];
     const option = document.createElement('option');
     option.value = deviceInfo.deviceId;
-    if (deviceInfo.kind === 'audioinput') {
-      option.text = deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
-      audioInputSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'audiooutput') {
-      option.text = deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
-      audioOutputSelect.appendChild(option);
-    } else if (deviceInfo.kind === 'videoinput') {
+    if (deviceInfo.kind === 'videoinput') {
       option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
+      console.log('Camera found: ', option.text);
+      console.log('Device info: ', deviceInfo);
+      console.log('Available constraints with device:', navigator.mediaDevices.getSupportedConstraints());
       videoSelect.appendChild(option);
     } else {
-      console.log('Some other kind of source/device: ', deviceInfo);
+    //  console.log('Device info: ', deviceInfo);
     }
   }
   selectors.forEach((select, selectorIndex) => {
@@ -48,7 +42,7 @@ function gotDevices(deviceInfos) {
   });
 }
 
-navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+//navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
 // Attach audio output device to video element using device/sink ID.
 function attachSinkId(element, sinkId) {
@@ -71,11 +65,6 @@ function attachSinkId(element, sinkId) {
   }
 }
 
-function changeAudioDestination() {
-  const audioDestination = audioOutputSelect.value;
-  attachSinkId(videoElement, audioDestination);
-}
-
 function gotStream(stream) {
   window.stream = stream; // make stream available to console
   videoElement.srcObject = stream;
@@ -93,34 +82,37 @@ function start() {
       track.stop();
     });
   }
-  const audioSource = audioInputSelect.value;
   const videoSource = videoSelect.value;
   const constraints = {
-    audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-    
+    audio: false,
     video: {
       width: {
-        max: 1920, 
+        max: 1920,
         ideal: 1920
-      }, 
+      },
       height: {
         max: 1080,
         ideal: 1080
-      }, 
+      },
       aspectRatio: 16/9,
       resizeMode: 'crop-and-scale',
       deviceId: videoSource ? {exact: videoSource} : undefined
-     }
-   };
+    }
+  };
   navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
   console.log('Got stream with constraints:', constraints);
-  console.log(`Using video device:, videoSource);
-  console.log('Available constraints with device:', navigator.mediaDevices.getSupportedConstraints());
 }
-
-audioInputSelect.onchange = start;
-audioOutputSelect.onchange = changeAudioDestination;
 
 videoSelect.onchange = start;
 
-start();
+async function init(e) {
+  try {
+    console.log('Finding available devices and constraints');
+    start()
+  }
+  catch (e) {
+    handleError(e);
+  }
+}
+
+document.querySelector('#showVideo').addEventListener('click', e => init(e));
