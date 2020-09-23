@@ -29,7 +29,7 @@ function gotDevices(deviceInfos) {
       option.text = deviceInfo.label || `camera ${videoSelect.length + 1}`;
       console.log('Camera found: ', option.text);
       console.log('Device info: ', deviceInfo);
-      console.log('Available constraints with device:', navigator.mediaDevices.getSupportedConstraints());
+      console.log('Available constraints with camera:', navigator.mediaDevices.getSupportedConstraints());
       videoSelect.appendChild(option);
     } else {
     //  console.log('Device info: ', deviceInfo);
@@ -42,39 +42,20 @@ function gotDevices(deviceInfos) {
   });
 }
 
-//navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
 
-// Attach audio output device to video element using device/sink ID.
-function attachSinkId(element, sinkId) {
-  if (typeof element.sinkId !== 'undefined') {
-    element.setSinkId(sinkId)
-        .then(() => {
-          console.log(`Success, audio output device attached: ${sinkId}`);
-        })
-        .catch(error => {
-          let errorMessage = error;
-          if (error.name === 'SecurityError') {
-            errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
-          }
-          console.error(errorMessage);
-          // Jump back to first output device in the list as it's the default.
-          audioOutputSelect.selectedIndex = 0;
-        });
-  } else {
-    console.warn('Browser does not support output device selection.');
-  }
-}
 
 function gotStream(stream) {
   window.stream = stream; // make stream available to console
   videoElement.srcObject = stream;
+
   // Refresh button list in case labels have become available
   return navigator.mediaDevices.enumerateDevices();
 }
 
 function handleError(error) {
-  console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+  console.log('Error: ', error.message, error.name);
 }
+
 
 function start() {
   if (window.stream) {
@@ -96,18 +77,52 @@ function start() {
       },
       aspectRatio: 16/9,
       resizeMode: 'crop-and-scale',
-      deviceId: videoSource ? {exact: videoSource} : undefined
+      deviceId: videoSource
     }
   };
-  navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
-  console.log('Got stream with constraints:', constraints);
+  console.log('Using camera source ID:', videoSource);
+  console.log('Requesting constraints:', constraints);
+  navigator.mediaDevices.getUserMedia(constraints).then(gotStream).catch(handleError);
+
 }
 
 videoSelect.onchange = start;
 
+async function getCamera(){
+  console.log('Opening camera');
+  if (window.stream) {
+    window.stream.getTracks().forEach(track => {
+      track.stop();
+    });
+  }
+  const constraints = window.constraints = {
+      audio: false,
+      video: true
+    };
+
+  const stream = navigator.mediaDevices.getUserMedia(constraints);
+
+  console.log('Got stream with constraints:', constraints);
+  window.stream = stream; // make variable available to browser console
+  videoElement.srcObject = stream;
+
+
+
+  // Refresh button list in case labels have become available
+  return navigator.mediaDevices.enumerateDevices();
+}
+
+function getDevices(){
+  console.log('Finding devices');
+  navigator.mediaDevices.enumerateDevices().then(gotDevices).catch(handleError);
+  document.getElementById("showCMSVideo").disabled = false;
+
+}
+
+
 async function init(e) {
   try {
-    console.log('Finding available devices and constraints');
+    console.log('Calling getUserMedia()');
     start()
   }
   catch (e) {
@@ -115,4 +130,8 @@ async function init(e) {
   }
 }
 
-document.querySelector('#showVideo').addEventListener('click', e => init(e));
+document.getElementById("showCMSVideo").disabled = true;
+
+document.querySelector('#showCMSVideo').addEventListener('click', e => init(e));
+// document.querySelector('#showVideo').addEventListener('click', getCamera);
+document.querySelector('#getDevices').addEventListener('click', getDevices);
