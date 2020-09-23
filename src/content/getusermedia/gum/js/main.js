@@ -21,10 +21,7 @@ const constraints = window.constraints = {
     }, 
     aspectRatio: 16/9,
     resizeMode: 'crop-and-scale',
-    deviceId: {
-      exact: <videoSource>
-    }
-  }
+   }
  }
 }
 
