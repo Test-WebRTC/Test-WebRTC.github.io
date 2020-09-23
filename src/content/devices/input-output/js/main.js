@@ -97,8 +97,21 @@ function start() {
   const videoSource = videoSelect.value;
   const constraints = {
     audio: {deviceId: audioSource ? {exact: audioSource} : undefined},
-    video: {deviceId: videoSource ? {exact: videoSource} : undefined}
-  };
+    
+    video: {
+      width: {
+        max: 1920, 
+        ideal: 1920
+      }, 
+      height: {
+        max: 1080,
+        ideal: 1080
+      }, 
+      aspectRatio: 16/9,
+      resizeMode: 'crop-and-scale',
+      deviceId: videoSource ? {exact: videoSource} : undefined
+     }
+   };
   navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
 }
 
