@@ -7,7 +7,6 @@
  */
 'use strict';
 
-const videoSource = videoSelect.value;
 const constraints = window.constraints = {
   audio: false,
   video: {
