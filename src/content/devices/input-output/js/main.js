@@ -113,6 +113,9 @@ function start() {
      }
    };
   navigator.mediaDevices.getUserMedia(constraints).then(gotStream).then(gotDevices).catch(handleError);
+  console.log('Got stream with constraints:', constraints);
+  console.log(`Using video device:, videoSource);
+  console.log('Available constraints with device:', navigator.mediaDevices.getSupportedConstraints());
 }
 
 audioInputSelect.onchange = start;
