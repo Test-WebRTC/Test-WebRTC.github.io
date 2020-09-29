@@ -77,7 +77,7 @@ function start() {
       },
       aspectRatio: 16/9,
       resizeMode: 'crop-and-scale',
-      deviceId: videoSource
+      deviceId: {exact: videoSource}
     }
   };
   console.log('Using camera source ID:', videoSource);
