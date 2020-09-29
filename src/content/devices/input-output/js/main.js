@@ -77,6 +77,7 @@ function start() {
       },
       aspectRatio: 16/9,
       resizeMode: 'crop-and-scale',
+      facingMode: {ideal: "user"},
       deviceId: videoSource ? {exact: videoSource} : undefined
     }
   };
